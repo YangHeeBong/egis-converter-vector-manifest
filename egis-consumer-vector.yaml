@@ -24,7 +24,7 @@ spec:
             terminationGracePeriodSeconds: 30
             containers:
                 - name: egis-consumer-vector-container
-                  image: digitaltwin-container.kr-central-2.kcr.dev/egis-dev-convert/egis-converter-facilities:20260602-7f83eed
+                  image: digitaltwin-container.kr-central-2.kcr.dev/egis-dev-convert/egis-converter-vector:20260922-332d65c
                   lifecycle:
                       preStop:
                           exec:
