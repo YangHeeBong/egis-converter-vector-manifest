@@ -1,71 +1,73 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: egis-consumer-vector
-  namespace: egis-cloud
+    name: egis-consumer-vector
+    namespace: egis-cloud
 spec:
-  selector:
-    matchLabels:
-      app: egis-consumer-vector
-  template:
-    metadata:
-      labels:
-        app: egis-consumer-vector
-    spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kakaoi.io/kke-nodepool
-                    operator: In
-                    values:
-                      - egis-converter-pool
-      terminationGracePeriodSeconds: 30
-      containers:
-        - name: egis-consumer-vector-container
-          image: digitaltwin-container.kr-central-2.kcr.dev/egis-dev-convert/egis-converter-vector:20260923-166a7a9
-          lifecycle:
-            preStop:
-              exec:
-                command: ["/bin/sh", "-c", 'threshold=0.5; while true; do load_average=$(cat /proc/loadavg | awk ''{print $2}''); echo "Current 5-minute Load Average: $load_average"; if (( $(echo "$load_average <= $threshold" | bc -l) )); then echo "Load Average is below $threshold. Exiting..."; break; fi; sleep 5; done']
-          volumeMounts:
-            - name: convert-user-data
-              mountPath: /data/DT_DATA
-          securityContext:
-            privileged: true
-            readOnlyRootFilesystem: false
-          resources:
-            requests:
-              cpu: "1"
-              memory: "2Gi"
-            limits:
-              cpu: "2"
-              memory: "3Gi"
-      volumes:
-        - name: convert-user-data
-          persistentVolumeClaim:
-            claimName: egis-convert-userdata-pvc
+    selector:
+        matchLabels:
+            app: egis-consumer-vector
+    template:
+        metadata:
+            labels:
+                app: egis-consumer-vector
+        spec:
+            affinity:
+                nodeAffinity:
+                    requiredDuringSchedulingIgnoredDuringExecution:
+                        nodeSelectorTerms:
+                            - matchExpressions:
+                                  - key: kakaoi.io/kke-nodepool
+                                    operator: In
+                                    values:
+                                        - egis-converter-pool
+            terminationGracePeriodSeconds: 30
+            containers:
+                - name: egis-consumer-vector-container
+                  image: digitaltwin-container.kr-central-2.kcr.dev/egis-dev-convert/egis-converter-vector:20260923-166a7a9
+                  lifecycle:
+                      preStop:
+                          exec:
+                              command:
+                                  [
+                                      "/bin/sh",
+                                      "-c",
+                                      'threshold=0.5; while true; do load_average=$(cat /proc/loadavg | awk ''{print $2}''); echo "Current 5-minute Load Average: $load_average"; if (( $(echo "$load_average <= $threshold" | bc -l) )); then echo "Load Average is below $threshold. Exiting..."; break; fi; sleep 5; done',
+                                  ]
+                  volumeMounts:
+                      - name: convert-user-data
+                        mountPath: /data/DT_DATA
+                  securityContext:
+                      privileged: true
+                      readOnlyRootFilesystem: false
+                  resources:
+                      requests:
+                          cpu: "1"
+                          memory: "2Gi"
+                      limits:
+                          cpu: "2"
+                          memory: "3Gi"
+            volumes:
+                - name: convert-user-data
+                  persistentVolumeClaim:
+                      claimName: egis-convert-userdata-pvc
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: egis-consumer-vector-hpa
-  namespace: egis-cloud
+    name: egis-consumer-vector-hpa
+    namespace: egis-cloud
 spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: egis-consumer-vector
-  minReplicas: 1
-  maxReplicas: 3
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 70
-  template:
-    spec:
-      containers: []
+    scaleTargetRef:
+        apiVersion: apps/v1
+        kind: Deployment
+        name: egis-consumer-vector
+    minReplicas: 1
+    maxReplicas: 3
+    metrics:
+        - type: Resource
+          resource:
+              name: cpu
+              target:
+                  type: Utilization
+                  averageUtilization: 70
