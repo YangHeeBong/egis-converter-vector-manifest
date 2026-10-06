@@ -73,8 +73,8 @@ spec:
               cpu: "1"
               memory: "2Gi"
             limits:
-              cpu: "2"
-              memory: "3Gi"
+              cpu: "1"
+              memory: "2Gi"
       volumes:
         - name: convert-user-data
           persistentVolumeClaim:
@@ -94,7 +94,7 @@ spec:
     kind: Deployment
     name: egis-consumer-vector
   minReplicas: 1
-  maxReplicas: 5
+  maxReplicas: 3
   behavior:
     scaleDown:
       stabilizationWindowSeconds: 300
