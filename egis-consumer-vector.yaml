@@ -97,7 +97,7 @@ spec:
   maxReplicas: 3
   behavior:
     scaleDown:
-      stabilizationWindowSeconds: 300
+      stabilizationWindowSeconds: 180
       policies:
         - type: Pods
           value: 1
